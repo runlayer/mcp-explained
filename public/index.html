@@ -318,7 +318,7 @@ body.focus #left,body.focus #right{opacity:0;overflow:hidden;pointer-events:none
 #intro{display:none}
 #btn-intro{font-size:13px;color:var(--f55);padding:4px 10px;border-radius:6px;margin-left:6px}
 #btn-intro:hover{color:var(--fg);background:var(--f08)}
-body.intro #btn-intro{visibility:hidden}
+body.intro #btn-intro{display:none}
 body.intro main{grid-template-columns:minmax(380px,520px) minmax(0,1fr) 0px}
 body.intro #intro{display:flex;align-items:center;border-right:1px solid var(--f15);overflow:auto}
 body.intro #left,body.intro #right{display:none}
@@ -485,6 +485,7 @@ tr.fut .risk{opacity:.5}
         <dt>Server</dt><dd>a small program exposing tools, data or prompts</dd>
         <dt>Model</dt><dd>decides what to use; never talks to a server directly</dd>
         <dt>Not REST</dt><dd>JSON-RPC over stdin/stdout or one HTTP endpoint, and servers can talk back</dd>
+        <dt>Not just JSON-RPC</dt><dd>JSON-RPC is the envelope. MCP defines what goes in it: the methods, capability negotiation, transports and auth</dd>
       </dl>
       <button type="button" id="intro-start">Start the lessons <span aria-hidden="true">→</span></button>
       <p class="intro-jump">or jump to <a href="#tools">Tools</a> · <a href="#transports@2024-11-05">the spec time machine</a> · <a href="#poisoning">Break it</a></p>
@@ -574,7 +575,7 @@ const LESSONS = [
   {
     id: "overview", code: "What is MCP?", name: "One definition, one diagram", group: "start", layer: 0,
     summary: "MCP (Model Context Protocol) is an open standard for connecting AI apps to the tools and data they use. A server describes what it can do. The AI app shows that to the model. When the model wants to use something, the app calls the server and hands the result back. One protocol, so any app can work with any server.",
-    facts: [["In one line", "a standard plug between AI apps and the tools and data they use"], ["Host", "the AI app you use: Claude, Cursor, ChatGPT, an agent"], ["Server", "a small program that exposes tools, data or prompts: GitHub, Slack, your database"], ["Model", "decides what to use; it never talks to a server directly"], ["Not just tools", "servers also offer data (resources) and templates (prompts), and can ask the user a question"], ["Is it a REST API?", "no: JSON-RPC messages over stdin/stdout or one HTTP endpoint, and the server can send messages too"], ["Where next", "Tools, then Transports and Authorization; Break it for security"]],
+    facts: [["In one line", "a standard plug between AI apps and the tools and data they use"], ["Host", "the AI app you use: Claude, Cursor, ChatGPT, an agent"], ["Server", "a small program that exposes tools, data or prompts: GitHub, Slack, your database"], ["Model", "decides what to use; it never talks to a server directly"], ["Not just tools", "servers also offer data (resources) and templates (prompts), and can ask the user a question"], ["Is it a REST API?", "no: JSON-RPC messages over stdin/stdout or one HTTP endpoint, and the server can send messages too"], ["Just JSON-RPC?", "JSON-RPC is only the envelope; MCP defines the methods (tools/list, tools/call…), capability negotiation, transports and OAuth"], ["Why not a CLI?", "coding agents with a shell often do fine with CLIs; MCP fits agents without a shell, remote servers with per-user auth, and narrow, auditable access"], ["Where next", "Tools, then Transports and Authorization; Break it for security"]],
     links: [["Introduction", "https://modelcontextprotocol.io/docs/getting-started/intro"], ["Architecture", "https://modelcontextprotocol.io/docs/learn/architecture"], ["Spec", "https://modelcontextprotocol.io/specification/" + SPEC]],
     actors: [at("user", 175, 420, { sub: "you" }), at("llm", 500, 125), at("host", 500, 420, { label: "AI app", sub: "the host" }), at("server", 830, 420, { sub: "e.g. GitHub" })],
     zones: [Z.me(["user", "host"], "your computer"), Z.model(["llm"]), Z.either(["server"])],
