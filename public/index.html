@@ -2803,7 +2803,7 @@ function renderList() {
       const state = cur && cur.step === i ? "cur" : cur && cur.step > i ? "past" : "";
       return `<li><button type="button" class="stp ${state}" data-step="${i}"><span class="num">${i + 1}</span><span><b>${esc(x.title)}${x.dep ? ` <i class="deptag">deprecated</i>` : ""}</b></span></button></li>`;
     }).join("")}</ol>`;
-    html += `<div class="li ${open ? "open" : ""}${gone ? " gone" : ""}"><button type="button" class="lh" data-l="${l.id}" aria-expanded="${open}"><span class="lt"><b>${esc(l.code)}${(() => { const tg = l.id === "tasks" && vIdx(st.version) >= vIdx("2026-07-28") ? "extension" : l.tag; return tg ? ` <small>${tg}</small>` : ""; })()}${(() => { const d = depState(l); return d === "all" ? ' <i class="deptag">deprecated</i>' : d === "some" ? ' <i class="depsome">has deprecated parts</i>' : ""; })()}</b><em>${gone ? "Arrives in " + since : esc(l.name)}</em></span></button>${steps}</div>`;
+    html += `<div class="li ${open ? "open" : ""}${gone ? " gone" : ""}"><button type="button" class="lh" data-l="${l.id}" aria-expanded="${open}"><span class="lt"><b>${esc(l.code)}${(() => { const tg = l.id === "tasks" && vIdx(st.version) >= vIdx("2026-07-28") ? "extension" : l.tag; return tg ? ` <small>${tg}</small>` : ""; })()}${(() => { const d = depState(l); return d === "all" ? ' <i class="deptag">deprecated</i>' : ""; })()}</b><em>${gone ? "Arrives in " + since : esc(l.name)}</em></span></button>${steps}</div>`;
   }
   html += `<div class="gh wn">What's next</div>` + WHATS_NEXT.map(([t, d, u]) => `<a class="wnl" href="${esc(u)}"${u.startsWith("#") ? "" : ' target="_blank" rel="noopener"'}><b>${esc(t)}${u.startsWith("#") ? " →" : " ↗"}</b><em>${esc(d)}</em></a>`).join("");
   $("#list").innerHTML = html;
