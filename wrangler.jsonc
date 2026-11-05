@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mcp-explainer",
+  "compatibility_date": "2026-10-15",
+  "assets": { "directory": "./public", "not_found_handling": "single-page-application" },
+  "workers_dev": true,
+  "routes": [
+    { "pattern": "mcp-explained.com", "custom_domain": true },
+    { "pattern": "www.mcp-explained.com", "custom_domain": true }
+  ],
+  "observability": { "enabled": true }
+}
