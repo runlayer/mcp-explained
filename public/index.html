@@ -940,7 +940,7 @@ const LESSONS = [
         { title: "One tool", desc: "The model gets one code tool plus the compact API instead of every schema.", msgs: [
           { from: "sandbox", to: "llm", kind: "host", dt: 4, info: "run_code + typed API", json: { tool: "run_code", description: "Execute TypeScript. Connected MCP servers are exposed as namespaced async functions.", api: ["tools.github.search_pull_requests(args)", "tools.linear.get_issue(args)", "…"] } } ] },
         { title: "Write", desc: "The model writes the whole workflow as one program. It's a host tool call, not an MCP message.", msgs: [
-          { from: "llm", to: "sandbox", kind: "host", dt: 2600, info: "tool_use run_code · stale PRs report", json: { type: "tool_use", name: "run_code", input: { code: "const prs = await tools.github.search_pull_requests({ query: 'repo:acme/app is:open draft:false' });\nconst stale = prs.items.filter(p => Date.now() - Date.parse(p.updated_at) > 3 * 864e5);\nconst ids = stale.flatMap(p => p.title.match(/ENG-\\d+/g) ?? []);\nconst issues = await Promise.all(ids.map(id => tools.linear.get_issue({ id })));\nreturn stale.map(p => ({ pr: p.html_url, days: Math.round((Date.now() - Date.parse(p.updated_at)) / 864e5), issue: issues.find(i => p.title.includes(i.identifier))?.state }));" } },
+          { from: "llm", to: "sandbox", kind: "host", dt: 2600, info: "tool_use run_code · stale PRs report", json: { type: "tool_use", name: "run_code", input: { code: "const prs = await tools.github.search_pull_requests({ query: 'repo:acme/app is:open draft:false' });\nconst stale = prs.items.filter(p => Date.now() - Date.parse(p.updated_at) > 3 * 864e5);\nconst ids = stale.flatMap(p => p.title.match(/APP-\\d+/g) ?? []);\nconst issues = await Promise.all(ids.map(id => tools.linear.get_issue({ id })));\nreturn stale.map(p => ({ pr: p.html_url, days: Math.round((Date.now() - Date.parse(p.updated_at)) / 864e5), issue: issues.find(i => p.title.includes(i.identifier))?.state }));" } },
             notes: [["code", "Plain TypeScript, same as with Runlayer."]] } ] },
         { title: "Run", desc: "Each tools.* call crosses back to the host, which sends a real tools/call straight to GitHub. The raw PRs stay in the sandbox.", msgs: [
           { from: "sandbox", to: "client", kind: "host", dt: 30, info: "binding · github.search_pull_requests", json: { host: "binding call", fn: "tools.github.search_pull_requests", args: { query: "repo:acme/app is:open draft:false" } },
@@ -950,9 +950,9 @@ const LESSONS = [
           { from: "github", to: "client", kind: "res", dt: 640, info: "48 PRs · 31 KB", json: ok(2, { structuredContent: { total_count: 48, items: ["…48 pull requests, 31 KB…"] } }) },
           { from: "client", to: "sandbox", kind: "host", dt: 3, info: "48 PRs · 31 KB (not to the model)", json: { host: "binding result", total_count: 48, items: ["…48 pull requests, 31 KB…"] } } ] },
         { title: "Fan out", desc: "Promise.all runs the Linear lookups in parallel, still through the host.", msgs: [
-          { from: "sandbox", to: "client", kind: "host", dt: 12, info: "binding · linear.get_issue × 5", json: { host: "binding call × 5", fn: "tools.linear.get_issue", args: [1, 2, 3, 4, 5].map(n => ({ id: "ENG-48" + n })) } },
-          { from: "client", to: "linear", kind: "req", dt: 4, info: "get_issue × 5 (parallel)", json: { parallel: [1, 2, 3, 4, 5].map(n => rpc(2 + n, "tools/call", { name: "get_issue", arguments: { id: "ENG-48" + n } })) } },
-          { from: "linear", to: "client", kind: "res", dt: 300, info: "5 issues · 9 KB", json: ok(3, { structuredContent: { identifier: "ENG-481", state: "In Review", "…": "…" } }) },
+          { from: "sandbox", to: "client", kind: "host", dt: 12, info: "binding · linear.get_issue × 5", json: { host: "binding call × 5", fn: "tools.linear.get_issue", args: [1, 2, 3, 4, 5].map(n => ({ id: "APP-48" + n })) } },
+          { from: "client", to: "linear", kind: "req", dt: 4, info: "get_issue × 5 (parallel)", json: { parallel: [1, 2, 3, 4, 5].map(n => rpc(2 + n, "tools/call", { name: "get_issue", arguments: { id: "APP-48" + n } })) } },
+          { from: "linear", to: "client", kind: "res", dt: 300, info: "5 issues · 9 KB", json: ok(3, { structuredContent: { identifier: "APP-481", state: "In Review", "…": "…" } }) },
           { from: "client", to: "sandbox", kind: "host", dt: 3, info: "5 issues · 9 KB", json: { host: "binding result × 5", size: "9 KB" } } ] },
         { title: "Answer", desc: "The program returns six rows. That's all the model sees.", msgs: [
           { from: "sandbox", to: "llm", kind: "host", dt: 20, info: "tool_result · 6 rows · 0.6 KB", json: { type: "tool_result", content: "[{\"pr\":\"…/pull/4801\",\"days\":9,\"issue\":\"In Review\"}, …5 more]" },
@@ -963,7 +963,7 @@ const LESSONS = [
       { title: "One tool", desc: "Instead of 60 connector schemas, the model gets codemode_code plus a namespace → tool-name list. Signatures load on demand.", msgs: [
         { from: "sandbox", to: "llm", kind: "host", dt: 0, info: "codemode_code + typed API", json: { tool: "codemode_code", description: "Execute TypeScript with the agent's connected MCP servers exposed as namespaced async tool functions.", tools: { github: ["search_pull_requests", "…"], linear: ["get_issue", "…"], slack: ["slack_send_message", "…"] }, signatures: "tools.$getInterface(\"github.search_pull_requests\")" } } ] },
       { title: "Write", desc: "The model writes the whole workflow as one program.", msgs: [
-        { from: "llm", to: "sandbox", kind: "req", dt: 2600, info: "tool_use codemode_code → stdio tools/call", json: rpc(1, "tools/call", { name: "codemode_code", arguments: { code: "const prs = await tools.github.search_pull_requests({ query: 'repo:acme/app is:open draft:false' });\nconst stale = prs.items.filter(p => Date.now() - Date.parse(p.updated_at) > 3 * 864e5);\nconst ids = stale.flatMap(p => p.title.match(/ENG-\\d+/g) ?? []);\nconst issues = await Promise.all(ids.map(id => tools.linear.get_issue({ id })));\nreturn stale.map(p => ({ pr: p.html_url, days: Math.round((Date.now() - Date.parse(p.updated_at)) / 864e5), issue: issues.find(i => p.title.includes(i.identifier))?.state }));" } }),
+        { from: "llm", to: "sandbox", kind: "req", dt: 2600, info: "tool_use codemode_code → stdio tools/call", json: rpc(1, "tools/call", { name: "codemode_code", arguments: { code: "const prs = await tools.github.search_pull_requests({ query: 'repo:acme/app is:open draft:false' });\nconst stale = prs.items.filter(p => Date.now() - Date.parse(p.updated_at) > 3 * 864e5);\nconst ids = stale.flatMap(p => p.title.match(/APP-\\d+/g) ?? []);\nconst issues = await Promise.all(ids.map(id => tools.linear.get_issue({ id })));\nreturn stale.map(p => ({ pr: p.html_url, days: Math.round((Date.now() - Date.parse(p.updated_at)) / 864e5), issue: issues.find(i => p.title.includes(i.identifier))?.state }));" } }),
           notes: [["transport", "The model emits tool_use; the harness turns it into tools/call to a local codemode MCP server over stdio."], ["code", "Plain TypeScript. Tool calls are auto-awaited if the model forgets."], ["Promise.all", "Parallel calls in one step, no extra model turns."]] } ] },
       { title: "Run", desc: "Each tools.* call becomes a real MCP tools/call through Runlayer. The 48 raw PRs stay in the sandbox.", msgs: [
         { from: "sandbox", to: "gateway", kind: "req", dt: 30, info: "github.search_pull_requests", json: rpc(2, "tools/call", { name: "search_pull_requests", arguments: { query: "repo:acme/app is:open draft:false" } }) },
@@ -972,10 +972,10 @@ const LESSONS = [
         { from: "gateway", to: "sandbox", kind: "res", dt: 8, info: "48 PRs · 31 KB (not to the model)", json: ok(2, { structuredContent: { total_count: 48, items: ["…48 pull requests, 31 KB…"] } }),
           notes: [["where it goes", "Into a variable in the program. The model never reads it."]] } ] },
       { title: "Fan out", desc: "Promise.all runs the Linear lookups in parallel.", msgs: [
-        { from: "sandbox", to: "gateway", kind: "req", dt: 12, info: "linear.get_issue × 5 (parallel)", json: { parallel: [1, 2, 3, 4, 5].map(n => rpc(2 + n, "tools/call", { name: "get_issue", arguments: { id: "ENG-48" + n } })) },
+        { from: "sandbox", to: "gateway", kind: "req", dt: 12, info: "linear.get_issue × 5 (parallel)", json: { parallel: [1, 2, 3, 4, 5].map(n => rpc(2 + n, "tools/call", { name: "get_issue", arguments: { id: "APP-48" + n } })) },
           notes: [["parallel", "Separate tools/call requests, up to 4 read-only calls per connector at once (writes one at a time). Not a JSON-RPC batch, which MCP removed in 2025-06-18."]] },
-        { from: "gateway", to: "linear", kind: "req", dt: 10, info: "tools/call × 5", json: rpc(61, "tools/call", { name: "get_issue", arguments: { id: "ENG-481" } }) },
-        { from: "linear", to: "gateway", kind: "res", dt: 300, info: "5 issues · 9 KB", json: ok(61, { structuredContent: { identifier: "ENG-481", state: "In Review", "…": "…" } }) },
+        { from: "gateway", to: "linear", kind: "req", dt: 10, info: "tools/call × 5", json: rpc(61, "tools/call", { name: "get_issue", arguments: { id: "APP-481" } }) },
+        { from: "linear", to: "gateway", kind: "res", dt: 300, info: "5 issues · 9 KB", json: ok(61, { structuredContent: { identifier: "APP-481", state: "In Review", "…": "…" } }) },
         { from: "gateway", to: "sandbox", kind: "res", dt: 6, info: "5 issues · 9 KB", json: { parallel: "5 results, 9 KB" } } ] },
       { title: "Answer", desc: "The program returns six rows. That's all the model sees: one call, one small result.", msgs: [
         { from: "sandbox", to: "llm", kind: "res", dt: 20, info: "6 rows · 0.6 KB", json: ok(1, { content: [{ type: "text", text: "[{\"pr\":\"…/pull/4801\",\"days\":9,\"issue\":\"In Review\"}, …5 more]" }], structuredContent: { output: "6 rows", logs: [], warnings: [], toolOutcomes: [{ callId: "c1", connectorId: "github", toolName: "search_pull_requests", status: "completed", inputFingerprint: "9f2c…" }, "…5 more"] } }),
@@ -2667,6 +2667,28 @@ const atVersion = (l, ver) => {
 };
 const resolve = (l, vid) => { l = atVersion(l, st.version); const vs = l.variants || [], v = vs.find((x) => x.id === vid) || vs[0]; return v ? Object.assign({}, l, v, { id: l.id, vid: v.id }) : l; };
 const variantOf = {};
+// Lessons with a human but no request from them: start the story with what the user actually typed.
+const PROMPTS = {
+  sampling: { text: "Write the release notes for v2.4", tool: "release_notes", args: { version: "2.4" } },
+  elicitation: { text: "Deploy the api service", tool: "deploy", args: { service: "api" } },
+  apps: { text: "What's the weather in Berlin this week?", tool: "get_forecast", args: { city: "Berlin" } },
+};
+function addPrompt(L) {
+  const P = PROMPTS[L.id], ids = L.actors.map((a) => a.id);
+  if (!P || L.absent || !ids.includes("user")) return L;
+  if (L.steps.some((s) => s.msgs.some((m) => m.from === "user" && m.json && m.json.text))) return L;
+  const hub = ids.includes("host") ? "host" : "client", hasLlm = ids.includes("llm");
+  let at = L.steps.findIndex((s) => s.msgs.some((m) => (m.from === "llm" && m.json && m.json.type === "tool_use") || (m.json && m.json.method === "tools/call")));
+  const needCall = at < 0; if (needCall) at = 0;
+  const target = L.steps[at], hasUse = target.msgs.some((m) => m.from === "llm" && m.json && m.json.type === "tool_use");
+  const msgs = [{ from: "user", to: hub, kind: "host", dt: 0, info: `"${P.text}"`, json: { host: "message", text: P.text }, notes: [["prompt", "What the user typed. Everything after this follows from it."]] }];
+  if (hasLlm) msgs.push({ from: hub, to: "llm", kind: "host", dt: 4, info: "prompt → model", json: { host: "send to model", text: P.text } });
+  if (hasLlm && !hasUse) msgs.push({ from: "llm", to: hub, kind: "host", dt: 1100, info: "tool_use " + P.tool, json: { type: "tool_use", name: P.tool, input: P.args } });
+  if (!hasLlm) msgs[0].notes.push(["model", "Not drawn here: the model reads this and picks the " + P.tool + " tool."]);
+  if (needCall && ids.includes("server")) msgs.push({ from: hub, to: "server", kind: "req", dt: 4, info: P.tool, json: rpc(6, "tools/call", { name: P.tool, arguments: P.args }) });
+  const step = { title: "Prompt", desc: hasLlm ? "You ask for something. The app hands it to the model, which decides a tool can help." : "You ask for something. The model picks a tool and the client calls it.", msgs };
+  return Object.assign({}, L, { steps: [...L.steps.slice(0, at), step, ...L.steps.slice(at)] });
+}
 // Attack surfaces: a quiet hint on the first message in a lesson where each attack can start.
 const RISKS = {
   poisoning: { title: "Tool poisoning", text: "Tool descriptions go straight into the model's context. A malicious server can hide instructions in them, or change them after you approved it." },
@@ -3017,7 +3039,7 @@ function setLesson(id, vid) {
   stop();
   const base = LESSONS.find((l) => l.id === id) || LESSONS[0];
   if (vid) variantOf[base.id] = vid;
-  st.lesson = portrait(resolve(base, variantOf[base.id]));
+  st.lesson = portrait(addPrompt(resolve(base, variantOf[base.id])));
   MSGS = flat(st.lesson); markRisks(MSGS, st.lesson); st.idx = -1; st.selected = null;
   if (anim) { cancelAnimationFrame(anim.raf); anim = null; }
   renderAll(false);
