@@ -211,7 +211,6 @@ main{display:grid;grid-template-columns:316px minmax(0,1fr) 372px;min-height:0}
 .depbox{border:1px dashed color-mix(in srgb,var(--red) 60%,transparent);border-radius:6px;padding:8px 10px;margin:0 0 10px}
 .depbox p{margin:5px 0 0;font-size:12px;color:var(--f70);line-height:1.45}
 #flowt tbody tr.dep s{text-decoration-color:var(--red)}
-#ov-facts tr.dep th,#ov-facts tr.dep td{color:var(--f70)}
 .pkt.dep .pb{stroke-dasharray:5 3}
 .pdep{font:9.5px var(--over);letter-spacing:.12em;fill:var(--red);paint-order:stroke;stroke:var(--bg);stroke-width:4px}
 
@@ -278,9 +277,6 @@ tbody tr.sel td{background:var(--f08);color:var(--fg)}
 .badge{font:10px var(--over);letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;border-radius:4px;border:1px solid var(--f15);color:var(--f55);white-space:nowrap;margin-top:4px}
 .badge.live{color:var(--green);border-color:var(--green)}
 .badge.ok{color:var(--fg);border-color:var(--f55)}
-#ov-facts{width:100%;border-collapse:collapse}
-#ov-facts th{font:500 12px var(--sans);text-align:left;vertical-align:top;padding:7px 10px 7px 0;width:38%;border-top:1px solid var(--f08)}
-#ov-facts td{font-size:13px;color:var(--f70);padding:7px 0;border-top:1px solid var(--f08)}
 .insp-h{padding:16px 20px 8px}
 .insp-h h2{margin:0;font-weight:400;font-size:16px}
 #insp{padding:0 20px 24px}
@@ -401,7 +397,7 @@ tr.fut .risk{opacity:.5}
 .verbar{margin:0 20px 10px;font-size:12px;color:var(--f55)}
 .verbar a,.srcs a,.nextbox a,.wipbox a{color:var(--fg);text-underline-offset:2px;text-decoration-color:var(--f30)}
 .verbar a:hover,.srcs a:hover,.nextbox a:hover,.wipbox a:hover{text-decoration-color:var(--fg)}
-#ov-more{margin-top:14px;display:flex;flex-direction:column;gap:12px}
+#ov-more{margin-top:4px;display:flex;flex-direction:column;gap:12px}
 #ov-more:empty{display:none}
 .srcs{display:grid;grid-template-columns:auto 1fr;column-gap:12px;font-size:12.5px;align-items:baseline}
 .srcs .lnk{display:flex;flex-wrap:wrap;gap:4px 12px}
@@ -529,7 +525,6 @@ tr.fut .risk{opacity:.5}
       <div id="ov-name"></div>
       <div id="ov-ns" class="nsbox" hidden><span class="nstag">Not in the MCP spec</span><p>A harness implementation detail, not part of MCP. Nothing new on the wire: the client and servers still speak plain <code>tools/list</code> and <code>tools/call</code>.</p></div>
       <p id="ov-sum"></p>
-      <table id="ov-facts"></table>
       <div id="ov-more"></div>
     </div>
     <div class="insp-h"><h2>Message</h2></div>
@@ -2821,7 +2816,6 @@ function renderOverview() {
   $("#ov-title").textContent = L.code;
   $("#ov-name").innerHTML = esc(L.name) + (DEPRECATED_IN[L.id] && vIdx(st.version) >= vIdx(DEPRECATED_IN[L.id]) ? ` <span class="deptag">Deprecated in ${DEPRECATED_IN[L.id]}</span>` : "");
   $("#ov-sum").textContent = L.summary;
-  $("#ov-facts").innerHTML = L.facts.map(([k, v, f]) => `<tr class="${f === "dep" ? "dep" : ""}"><th>${esc(k)}${f === "dep" ? ` <i class="deptag">deprecated</i>` : ""}</th><td>${esc(v)}</td></tr>`).join("");
   $("#ov-ns").hidden = L.group !== "scale";
   const ext = (u, t) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`;
   let more = "";
