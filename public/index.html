@@ -138,8 +138,7 @@ main{display:grid;grid-template-columns:316px minmax(0,1fr) 372px;min-height:0}
 #caption{flex:1 1 auto;min-width:0;max-width:620px;min-height:70px}
 #caption .ct{font-size:20px;letter-spacing:-.01em;margin:4px 0 2px;line-height:1.2}
 #caption p{margin:0;font-size:13px;color:var(--f70);text-wrap:pretty}
-#caption p.plain{margin-top:6px;color:var(--fg);opacity:.88;font-size:13.5px}
-#caption p.plain b{font-weight:500;margin-right:4px;color:var(--f55)}
+#caption p.plain{color:var(--fg);opacity:.85;font-size:13.5px}
 .gdot{fill:var(--f15)}
 .edge{stroke:var(--f30);stroke-width:1}
 .edge.used{stroke:var(--f40)}
@@ -3258,7 +3257,7 @@ function capHTML(L, i) {
   const s = L.steps[i];
   const rk = (MSGS.find((m) => m.step === i && m.risk) || {}).risk;
   const pw = plainFor(L, s.title);
-  return `<div class="ov">Step ${i + 1} of ${L.steps.length}${rk ? " " + riskBtn(rk) : ""}${s.dep ? ` <span class="deptag">Deprecated</span>` : ""}</div><div class="ct">${esc(s.title)}</div><p>${esc(s.desc)}</p>${pw ? `<p class="plain"><b>In plain words</b> ${esc(pw)}</p>` : ""}${s.dep ? `<p class="depnote">${esc(s.dep)}</p>` : ""}`;
+  return `<div class="ov">Step ${i + 1} of ${L.steps.length}${rk ? " " + riskBtn(rk) : ""}${s.dep ? ` <span class="deptag">Deprecated</span>` : ""}</div><div class="ct">${esc(s.title)}</div><p class="plain">${esc(pw || s.desc)}</p>${s.dep ? `<p class="depnote">${esc(s.dep)}</p>` : ""}`;
 }
 let capKey = "";
 // Reserve the tallest caption of the lesson so the diagram never jumps between steps.
