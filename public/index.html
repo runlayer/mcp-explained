@@ -621,9 +621,9 @@ const LESSONS = [
       { title: "Result", desc: "The server answers id 1. A response has either result or error, never both.", msgs: [
         { from: "server", to: "client", kind: "res", dt: 14, info: "id 1 · 1 tool", json: ok(1, { tools: [{ name: "create_issue", description: "Create a GitHub issue", inputSchema: { type: "object" } }] }),
           notes: [["id", "Matches the request. That's how the client pairs them, even out of order."], ["result", "Method-specific payload."]] } ] },
-      { title: "Error", desc: "A typo in the method name gets a standard JSON-RPC error instead of a result.", msgs: [
-        { from: "client", to: "server", kind: "req", dt: 30, info: "id 2 · tools/cal (typo)", json: rpc(2, "tools/cal", { name: "create_issue" }) },
-        { from: "server", to: "client", kind: "err", dt: 6, info: "id 2 · -32601 Method not found", json: { jsonrpc: "2.0", id: 2, error: { code: -32601, message: "Method not found", data: { method: "tools/cal" } } },
+      { title: "Error", desc: "Calling a method the server doesn't have gets a standard JSON-RPC error instead of a result.", msgs: [
+        { from: "client", to: "server", kind: "req", dt: 30, info: "id 2 · tools/delete (no such method)", json: rpc(2, "tools/delete", { name: "create_issue" }) },
+        { from: "server", to: "client", kind: "err", dt: 6, info: "id 2 · -32601 Method not found", json: { jsonrpc: "2.0", id: 2, error: { code: -32601, message: "Method not found", data: { method: "tools/delete" } } },
           notes: [["error.code", "Standard JSON-RPC codes. MCP adds a few, e.g. -32002 resource not found, -32042 URL elicitation required."], ["error.data", "Optional extra detail."]] } ] },
       { title: "Notification", desc: "No id means fire and forget. Here the server tells the client its tool list changed.", msgs: [
         { from: "server", to: "client", kind: "note", dt: 420, info: "tools changed, no reply expected", json: note("notifications/tools/list_changed"),
@@ -1438,9 +1438,9 @@ const VERSIONS = [["2024-11-05", "Nov ’24"], ["2025-03-26", "Mar ’25"], ["20
   const jRes = { title: "Result", desc: "The server answers id 1. A response has either result or error, never both.", msgs: [
     { from: "server", to: "client", kind: "res", dt: 14, info: "id 1 · 1 tool", json: ok(1, { tools: [{ name: "create_issue", description: "Create a GitHub issue", inputSchema: { type: "object" } }] }),
       notes: [["id", "Matches the request. That's how the client pairs them, even out of order."], ["result", "Method-specific payload."]] } ] };
-  const jErr = (codeNote) => ({ title: "Error", desc: "A typo in the method name gets a standard JSON-RPC error instead of a result.", msgs: [
-    { from: "client", to: "server", kind: "req", dt: 30, info: "id 2 · tools/cal (typo)", json: rpc(2, "tools/cal", { name: "create_issue" }) },
-    { from: "server", to: "client", kind: "err", dt: 6, info: "id 2 · -32601 Method not found", json: { jsonrpc: "2.0", id: 2, error: { code: -32601, message: "Method not found", data: { method: "tools/cal" } } },
+  const jErr = (codeNote) => ({ title: "Error", desc: "Calling a method the server doesn't have gets a standard JSON-RPC error instead of a result.", msgs: [
+    { from: "client", to: "server", kind: "req", dt: 30, info: "id 2 · tools/delete (no such method)", json: rpc(2, "tools/delete", { name: "create_issue" }) },
+    { from: "server", to: "client", kind: "err", dt: 6, info: "id 2 · -32601 Method not found", json: { jsonrpc: "2.0", id: 2, error: { code: -32601, message: "Method not found", data: { method: "tools/delete" } } },
       notes: [["error.code", codeNote], ["error.data", "Optional extra detail."]] } ] });
   const jNote = { title: "Notification", desc: "No id means fire and forget. Here the server tells the client its tool list changed.", msgs: [
     { from: "server", to: "client", kind: "note", dt: 420, info: "tools changed, no reply expected", json: note("notifications/tools/list_changed"),
@@ -1468,9 +1468,9 @@ const VERSIONS = [["2024-11-05", "Nov ’24"], ["2025-03-26", "Mar ’25"], ["20
           { from: "client", to: "server", kind: "req", dt: 900, info: "id 2 · deploy", json: rpc(2, "tools/call", { name: "deploy", arguments: { service: "api" }, _meta: M26({ elicitation: { form: {} } }) }) },
           { from: "server", to: "client", kind: "res", dt: 25, info: "id 2 · input_required", json: ok(2, { resultType: "input_required", inputRequests: { env: { method: "elicitation/create", params: { mode: "form", message: "Where should api deploy?", requestedSchema: { type: "object", properties: { environment: { type: "string", enum: ["staging", "production"] } }, required: ["environment"] } } } }, requestState: "eyJzdmMiOiJhcGkifQ.c2ln" }),
             notes: [["inputRequests", "Requests the server would once have sent itself (elicitation, sampling, roots), keyed by name."], ["requestState", "Opaque. The client echoes it on the retry. See Sampling, Elicitation, Roots."]] } ] },
-        { title: "Error", desc: "A typo in the method name gets a standard JSON-RPC error instead of a result.", msgs: [
-          { from: "client", to: "server", kind: "req", dt: 30, info: "id 3 · tools/cal (typo)", json: rpc(3, "tools/cal", { name: "create_issue", _meta: M26() }) },
-          { from: "server", to: "client", kind: "err", dt: 6, info: "id 3 · -32601 Method not found", json: { jsonrpc: "2.0", id: 3, error: { code: -32601, message: "Method not found", data: { method: "tools/cal" } } },
+        { title: "Error", desc: "Calling a method the server doesn't have gets a standard JSON-RPC error instead of a result.", msgs: [
+          { from: "client", to: "server", kind: "req", dt: 30, info: "id 3 · tools/delete (no such method)", json: rpc(3, "tools/delete", { name: "create_issue", _meta: M26() }) },
+          { from: "server", to: "client", kind: "err", dt: 6, info: "id 3 · -32601 Method not found", json: { jsonrpc: "2.0", id: 3, error: { code: -32601, message: "Method not found", data: { method: "tools/delete" } } },
             notes: [["error.code", "MCP's own codes sit in -32020…-32099: -32020 header mismatch, -32021 missing client capability, -32022 unsupported protocol version."], ["retired", "-32002 (now -32602) and -32042 stay reserved and are never reused."]] } ] },
         { title: "Notification", desc: "No id means fire and forget. Change notifications now arrive only on a subscriptions/listen stream the client opened.", msgs: [
           { from: "server", to: "client", kind: "note", dt: 420, info: "tools changed (subscription 9)", json: note("notifications/tools/list_changed", subMeta(9)),
@@ -2734,13 +2734,13 @@ const PLAIN = {
 "overview|Answer": "The server's reply goes back to the model so it can turn a raw result into a normal sentence for you. Ask, pick a tool, run it, report back: that's the whole cycle.",
 "jsonrpc|Request": "Each question gets a number, like a ticket at a deli counter. When answers come back out of order, the number tells the client which question each one belongs to.",
 "jsonrpc|Result": "The reply carries the same number as the question, so the client can match them up. It holds an answer or an error, never a confusing mix of both.",
-"jsonrpc|Error": "A misspelled command gets a standard error code rather than silence. Because the codes are shared by all MCP software, any client can tell exactly what went wrong.",
+"jsonrpc|Error": "A command the server doesn't have gets a standard error code rather than silence. Because the codes are shared by all MCP software, any client can tell exactly what went wrong.",
 "jsonrpc|Notification": "Some messages are just announcements, with no ticket number and no reply expected. Here the server says its tools changed, so the client knows to refresh its list.",
 "jsonrpc|Batch": "Several messages can be bundled into one package to save round trips. Current versions dropped this, but you may still spot it in older logs.",
 "jsonrpc@2026-07-28|Request": "Each question still gets a matching number. With no opening handshake anymore, every request also states which version and features it uses, so it makes sense on its own.",
 "jsonrpc@2026-07-28|Result": "The answer comes back under the same number, with a label saying what kind of answer it is. That label tells the client whether it's finished or has more to do.",
 "jsonrpc@2026-07-28|Input required": "Rather than interrupting with a question of its own, the server replies with what it's missing, like a form sent back for a signature. The client fills the gaps and resubmits.",
-"jsonrpc@2026-07-28|Error": "A misspelled command still gets a standard, shared error code. Any client can read it and know the command simply doesn't exist.",
+"jsonrpc@2026-07-28|Error": "A command the server doesn't have still gets a standard, shared error code. Any client can read it and know the command simply doesn't exist.",
 "jsonrpc@2026-07-28|Notification": "Announcements still need no reply, but the server can only send them on a channel the client deliberately opened. Nothing arrives unless the client asked to listen.",
 "jsonrpc@2026-07-28|Batch": "Bundling several messages into one package appears here only for recognition. You might meet it in old logs, but current versions don't use it.",
 "jsonrpc@2025-06-18|Request": "Every request carries an id number. When several answers arrive at once, that number is how the client pairs each answer with its question.",
@@ -2750,7 +2750,7 @@ const PLAIN = {
 "jsonrpc@2025-06-18|Batch": "This version removed bundling several messages together, which made life simpler for anyone building MCP software. It's shown only so you recognise it in older traffic.",
 "jsonrpc@2025-03-26|Request": "Each request is numbered so its answer can be matched later. Numbering lets many questions be in flight at once without getting mixed up.",
 "jsonrpc@2025-03-26|Result": "The answer comes back tagged with the same number, holding a result or an error but not both. That keeps the client's bookkeeping simple.",
-"jsonrpc@2025-03-26|Error": "A typo in the command name earns a standard 'method not found' code. Shared codes let any client recognise the problem without custom handling.",
+"jsonrpc@2025-03-26|Error": "Asking for a command that doesn't exist earns a standard 'method not found' code. Shared codes let any client recognise the problem without custom handling.",
 "jsonrpc@2025-03-26|Notification": "No number means no reply is coming. The server is just letting the client know its tools changed, so the client can fetch the fresh list.",
 "jsonrpc@2025-03-26|Batch": "In this version several requests can travel together in one package, and every program must be able to unpack such bundles. Fewer trips back and forth means less waiting.",
 "jsonrpc@2024-11-05|Request": "In the first MCP version, every question already carried an id number. That number lets the client match answers to questions when several are pending.",
